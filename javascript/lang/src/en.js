@@ -38,5 +38,6 @@
 	"AssetGalleryField.DROPZONE_REMOVE_FILE": "Remove file",
 	"AssetGalleryField.DROPZONE_MAX_FILES_EXCEEDED": "You can not upload any more files.",
 	"AssetGalleryField.DROPZONE_UPLOAD": "Upload",
-  "AssetGalleryField.ADD_FOLDER_BUTTON": "Add folder"
+	"AssetGalleryField.ADD_FOLDER_BUTTON": "Add folder",
+	"AssetGalleryField.ADD_TO_CAMPAIGN": "Add to campaign"
 }

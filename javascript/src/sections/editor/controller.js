@@ -148,6 +148,16 @@ class EditorContainer extends SilverStripeComponent {
 					onClick={this.onCancel}>
 					{i18n._t('AssetGalleryField.CANCEL')}
 				</button>
+				{/**
+				 * Button for adding files to campaigns.
+				 * The ss-addtocampaign class is picked up by framework
+				 * javascript and the functionality is handled there
+				 */}
+				<button
+					type='button'
+					className="ss-ui-button ui-button ui-widget ui-state-default ui-corner-all font-icon-plus ss-addtocampaign">
+					{i18n._t('AssetGalleryField.ADD_TO_CAMPAIGN')}
+				</button>
 			</div>
 		</div>;
 	}
