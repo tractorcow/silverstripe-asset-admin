@@ -38,7 +38,6 @@
     "babel-jest": "^5.3.0",
     "babelify": "^6.3.0",
     "browserify": "^11.1.0",
-    "deep-freeze": "0.0.1",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.0",
     "gulp-notify": "^2.2.0",
@@ -47,21 +46,22 @@
     "gulp-uglify": "^1.5.2",
     "jest-cli": "^0.8.0",
     "npm-shrinkwrap": "^200.4.0",
-    "react": "^0.14.7",
-    "react-addons-test-utils": "^0.14.7",
-    "react-dom": "^0.14.7",
-    "react-redux": "^4.4.0",
-    "redux": "^3.3.1",
-    "redux-logger": "^2.4.0",
-    "redux-mock-store": "0.0.6",
-    "redux-thunk": "^1.0.3",
     "semver": "^5.0.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "deep-freeze": "0.0.1",
     "dropzone": "https://registry.npmjs.org/dropzone/-/dropzone-4.3.0.tgz",
-    "react-addons-css-transition-group": "^0.14.7"
+    "react": "^0.14.7",
+    "react-addons-css-transition-group": "^0.14.7",
+    "react-addons-test-utils": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-redux": "^4.4.0",
+    "redux": "^3.3.1",
+    "redux-logger": "^2.4.0",
+    "redux-mock-store": "0.0.6",
+    "redux-thunk": "^1.0.3"
   }
 }
