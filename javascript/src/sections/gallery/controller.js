@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import ReactTestUtils from 'react-addons-test-utils';
 import DropzoneComponent from 'components/dropzone';
-import FileComponent from 'components/file/index';
+import FileComponent from 'components/file';
 import BulkActionsComponent from 'components/bulk-actions/index';
 import SilverStripeComponent from 'silverstripe-component';
 import CONSTANTS from 'constants.js';
