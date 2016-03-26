@@ -9,20 +9,23 @@ var gulp = require('gulp'),
 	watchify = require('watchify'),
 	packageJSON = require('./package.json'),
 	semver = require('semver'),
-	notify = require('gulp-notify');
+	notify = require('gulp-notify'),
+    sourcemaps = require('gulp-sourcemaps');
 
 var PATHS = {
 	JAVASCRIPT_DIST: './javascript/dist',
-	JAVASCRIPT_SRC: './javascript/src/**/*.js',
-	SCSS: './javascript/src/**/*.scss',
-	IMAGES: './javascript/src/img/**'
+	JAVASCRIPT_SRC: './javascript/src',
+	SCSS: './javascript/src',
+	IMAGES: './javascript/src/img'
 };
 
 var isDev = typeof process.env.npm_config_development !== 'undefined';
 
 var nodeVersionIsValid = semver.satisfies(process.versions.node, packageJSON.engines.node);
 
-var browserifyOptions = { entries: './javascript/src/boot/index.js' };
+var browserifyOptions = {
+    entries: './javascript/src/boot/index.js'
+};
 
 if (!nodeVersionIsValid) {
 	console.error('Invalid Node.js version. You need to be using ' + packageJSON.engines.node);
@@ -57,7 +60,9 @@ gulp.task('js', function bundleJavaScript() {
 		.on('error', notify.onError({ message: 'Error: <%= error.message %>' }))
 		.pipe(source('bundle.js'))
 		.pipe(buffer())
+        .pipe(sourcemaps.init({ loadMaps: true }))
 		.pipe(gulpif(!isDev, uglify()))
+        .pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(PATHS.JAVASCRIPT_DIST));
 });
 
@@ -68,13 +73,13 @@ gulp.task('sass', function () {
 });
 
 gulp.task('images', function () {
-	return gulp.src(PATHS.IMAGES)
+	return gulp.src(PATHS.IMAGES + '/**')
 		.pipe(gulp.dest(PATHS.JAVASCRIPT_DIST + '/img'));
 });
 
 gulp.task('default', ['js', 'sass', 'images'], function () {
 	if (isDev) {
-		gulp.watch(PATHS.JAVASCRIPT_SRC, ['js']);
-		gulp.watch(PATHS.SCSS, ['sass']);
+		gulp.watch(PATHS.JAVASCRIPT_SRC + '/**/*.js', ['js']);
+		gulp.watch(PATHS.SCSS + '/**/*.scss', ['sass']);
 	}
 });
