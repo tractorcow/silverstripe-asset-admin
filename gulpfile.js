@@ -24,7 +24,8 @@ var isDev = typeof process.env.npm_config_development !== 'undefined';
 var nodeVersionIsValid = semver.satisfies(process.versions.node, packageJSON.engines.node);
 
 var browserifyOptions = {
-    entries: './javascript/src/boot/index.js'
+    entries: './javascript/src/boot/index.js',
+    paths: [PATHS.JAVASCRIPT_SRC]
 };
 
 if (!nodeVersionIsValid) {

@@ -2,7 +2,7 @@ jest.dontMock('react');
 jest.dontMock('react-dom');
 jest.dontMock('react-redux');
 jest.dontMock('react-addons-test-utils');
-jest.dontMock('../../../components/bulk-actions');
+jest.dontMock('components/bulk-actions');
 jest.dontMock('../controller');
 
 var React = require('react'),
@@ -80,7 +80,7 @@ describe('GalleryContainer', function() {
             expect(props.actions.gallery.addFiles).toBeCalled();
         });
     });
-    
+
     describe('handleSort()', () => {
         var gallery,
             event = {
@@ -113,72 +113,72 @@ describe('GalleryContainer', function() {
     });
 
     describe('getNoItemsNotice()', () => {
-    
+
         it('should return the no items notice if there are no files', () => {
             props.gallery.count = 0;
-    
+
             const gallery = ReactTestUtils.renderIntoDocument(
                 <GalleryContainer {...props} />
             );
-    
+
             expect(JSON.stringify(gallery.getNoItemsNotice())).toContain('gallery__no-item-notice');
         });
-        
+
         it('should return null if there is at least one file', () => {
             props.gallery.count = 1;
-    
+
             const gallery = ReactTestUtils.renderIntoDocument(
                 <GalleryContainer {...props} />
             );
-    
+
             expect(gallery.getNoItemsNotice()).toBe(null);
         });
     });
-    
+
     describe('getBackButton()', () => {
         var gallery;
-    
+
         beforeEach(() => {
-    
+
             gallery = ReactTestUtils.renderIntoDocument(
                 <GalleryContainer {...props} />
             );
         });
-    
+
         it('should not return a back button it we\'re at the top level', () => {
             expect(gallery.getBackButton()).toBe(null);
         });
-    
+
         it('should return a back button if parentFolderID is set.', () => {
             props.gallery.parentFolderID = 0;
             var button;
-    
+
             button = gallery.getBackButton();
-    
+
             expect(button).not.toBe(null);
             expect(button.type).toBe('button');
             expect(button.ref).toBe('backButton')
         });
     });
-    
+
     describe('getBulkActionsComponent()', () => {
         var gallery;
-    
+
         beforeEach(() => {
             props.backend.bulkActions = true;
-    
+
             gallery = ReactTestUtils.renderIntoDocument(
                 <GalleryContainer {...props} />
             );
         });
-        
+
         it('should not return a BulkActionsComponent if there are no selected items', () => {
             expect(gallery.getBulkActionsComponent()).toBe(null);
         });
-    
+
         it('should return a BulkActionsComponent if there are items in the selectedFiles array.', () => {
             props.gallery.selectedFiles = [1];
-            
+
             expect(gallery.getBulkActionsComponent()).not.toBe(null);
         });
     });
@@ -224,25 +224,25 @@ describe('GalleryContainer', function() {
                 <GalleryContainer {...props} />
             );
         });
-        
+
         it('should call next()', () => {
             gallery.handleEnterRoute(ctx, next);
-            
+
             expect(next).toBeCalled();
         });
-        
+
         it('should call props.actions.setViewingFolder with false if we are not in a folder', () => {
             gallery.handleEnterRoute(ctx, next);
-            
+
             expect(props.actions.gallery.setViewingFolder).toBeCalledWith(false);
         });
-        
+
         it('should call props.actions.setViewingFolder with true if we are in a folder', () => {
             ctx.params.action = 'show';
             ctx.params.id = 1;
-            
+
             gallery.handleEnterRoute(ctx, next);
-            
+
             expect(props.actions.gallery.setViewingFolder).toBeCalledWith(true);
         });
 
@@ -310,7 +310,7 @@ describe('GalleryContainer', function() {
         it('should return true if the file is selected', () => {
             expect(gallery.itemIsSelected(1)).toBe(true);
         });
-        
+
         it('should return false if the file is not selected', () => {
             expect(gallery.itemIsSelected(2)).toBe(false);
         });
@@ -381,7 +381,7 @@ describe('GalleryContainer', function() {
 
             expect(props.actions.gallery.deselectFiles).toBeCalledWith([1]);
         })
-        
+
         it('should set select the file is not currently selected', () => {
             var item = { id: 2 };
 
@@ -405,22 +405,22 @@ describe('GalleryContainer', function() {
                 <GalleryContainer {...props} />
             );
         });
-        
+
         it('should stop propagation of the event', () => {
             gallery.handleMoreClick(event);
-            
+
             expect(event.stopPropagation).toBeCalled();
         });
-        
+
         it('should prevent the default behaviour of the event', () => {
             gallery.handleMoreClick(event);
-            
+
             expect(event.preventDefault).toBeCalled();
         });
-        
+
         it('should call props.backend.more', () => {
             gallery.handleMoreClick(event);
-            
+
             expect(props.backend.more).toBeCalled();
         });
     });
@@ -446,13 +446,13 @@ describe('GalleryContainer', function() {
 
         it('should prevent the default behaviour of the event', () => {
             gallery.handleBackClick(event);
-            
+
             expect(event.preventDefault).toBeCalled();
         });
-        
+
         it('should update the route', () => {
             gallery.handleBackClick(event);
-            
+
             expect(window.ss.router.show).toBeCalledWith('/assets/show/1');
         });
     });

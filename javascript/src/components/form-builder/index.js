@@ -2,10 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import $ from 'jQuery';
-import * as schemaActions from '../../state/schema/actions';
+import * as schemaActions from 'state/schema/actions';
 import SilverStripeComponent from 'silverstripe-component';
-import FormComponent from '../form';
-import TextField from '../text-field';
+import FormComponent from 'components/form';
+import TextField from 'components/text-field';
 
 // Using this to map field types to components until we implement dependency injection.
 var fakeInjector = {
@@ -130,7 +130,7 @@ export class FormBuilderComponent extends SilverStripeComponent {
 
     /**
      * Gets form schema for the FormBuilder.
-     * 
+     *
      * @return object|undefined
      */
     getFormSchema() {
