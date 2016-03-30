@@ -31,7 +31,8 @@ class DropzoneUploadField extends UploadField
         'POST upload' => 'uploadFile'
     ];
 
-    public function uploadFile(SS_HTTPRequest $request) {
+    public function uploadFile(SS_HTTPRequest $request)
+    {
         $folderID = $request->postVar('folderID');
 
         if ($folderID == 0) {
@@ -107,13 +108,15 @@ class DropzoneUploadField extends UploadField
 
     public function upload(SS_HTTPRequest $request)
     {
-        if($this->isDisabled() || $this->isReadonly() || !$this->canUpload()) {
+        if ($this->isDisabled() || $this->isReadonly() || !$this->canUpload()) {
             return $this->httpError(403);
         }
 
         // Protect against CSRF on destructive action
         $token = $this->getForm()->getSecurityToken();
-        if(!$token->checkRequest($request)) return $this->httpError(400);
+        if (!$token->checkRequest($request)) {
+            return $this->httpError(400);
+        }
 
         // Get form details
         $name = $this->getName();
@@ -127,7 +130,7 @@ class DropzoneUploadField extends UploadField
         // and save data/error on a per file basis
         foreach ($uploadedFiles as $tempFile) {
             $file = $this->saveTemporaryFile($tempFile, $error);
-            if(empty($file)) {
+            if (empty($file)) {
                 array_push($return, ['error' => $error]);
             } else {
                 array_push($return, $this->getObjectFromData($file));

@@ -2,13 +2,13 @@
 
 namespace SilverStripe\Cms\Test\Behaviour;
 
-use SilverStripe\BehatExtension\Context\SilverStripeContext,
-    SilverStripe\BehatExtension\Context\BasicContext,
-    SilverStripe\BehatExtension\Context\LoginContext,
-    SilverStripe\BehatExtension\Context\FixtureContext,
-    SilverStripe\Framework\Test\Behaviour\CmsFormsContext,
-    SilverStripe\Framework\Test\Behaviour\CmsUiContext,
-    SilverStripe\Cms\Test\Behaviour;
+use SilverStripe\BehatExtension\Context\SilverStripeContext;
+use SilverStripe\BehatExtension\Context\BasicContext;
+use SilverStripe\BehatExtension\Context\LoginContext;
+use SilverStripe\BehatExtension\Context\FixtureContext;
+use SilverStripe\Framework\Test\Behaviour\CmsFormsContext;
+use SilverStripe\Framework\Test\Behaviour\CmsUiContext;
+use SilverStripe\Cms\Test\Behaviour;
 
 // PHPUnit
 require_once 'PHPUnit/Autoload.php';
@@ -49,6 +49,5 @@ class FeatureContext extends \SilverStripe\Framework\Test\Behaviour\FeatureConte
             });
             $factory->define($class, $blueprint);
         }
-
     }
 }

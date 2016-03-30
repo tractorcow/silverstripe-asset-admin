@@ -585,7 +585,7 @@ class AssetGalleryField extends FormField
      */
     public function getIdFromURL()
     {
-        if($this->idFromURL) {
+        if ($this->idFromURL) {
             return $this->idFromURL;
         }
 

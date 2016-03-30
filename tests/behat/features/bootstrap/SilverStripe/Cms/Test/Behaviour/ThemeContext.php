@@ -2,15 +2,15 @@
 
 namespace SilverStripe\Cms\Test\Behaviour;
 
-use Behat\Behat\Context\ClosuredContextInterface,
-    Behat\Behat\Context\TranslatedContextInterface,
-    Behat\Behat\Context\BehatContext,
-    Behat\Behat\Context\Step,
-    Behat\Behat\Event\StepEvent,
-    Behat\Behat\Exception\PendingException,
-    Behat\Mink\Driver\Selenium2Driver,
-    Behat\Gherkin\Node\PyStringNode,
-    Behat\Gherkin\Node\TableNode;
+use Behat\Behat\Context\ClosuredContextInterface;
+use Behat\Behat\Context\TranslatedContextInterface;
+use Behat\Behat\Context\BehatContext;
+use Behat\Behat\Context\Step;
+use Behat\Behat\Event\StepEvent;
+use Behat\Behat\Exception\PendingException;
+use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
 
 // PHPUnit
 require_once 'PHPUnit/Autoload.php';
@@ -31,7 +31,9 @@ class ThemeContext extends BehatContext
      */
     public function stepCreateTheme($theme)
     {
-        if(!preg_match('/^[0-9a-zA-Z_-]+$/', $theme)) throw new \InvalidArgumentException("Bad theme '$theme'");
+        if (!preg_match('/^[0-9a-zA-Z_-]+$/', $theme)) {
+            throw new \InvalidArgumentException("Bad theme '$theme'");
+        }
 
         $this->requireDir(BASE_PATH . '/themes');
         $this->requireDir(BASE_PATH . '/themes/' . $theme);
@@ -45,8 +47,12 @@ class ThemeContext extends BehatContext
      */
     public function stepCreateTemplate($template, $theme, $content)
     {
-        if(!preg_match('/^[0-9a-zA-Z_-]+$/', $theme)) throw new \InvalidArgumentException("Bad theme '$theme'");
-        if(!preg_match('/^(Layout\/)?[0-9a-zA-Z_-]+\.ss$/', $template)) throw new \InvalidArgumentException("Bad template '$template'");
+        if (!preg_match('/^[0-9a-zA-Z_-]+$/', $theme)) {
+            throw new \InvalidArgumentException("Bad theme '$theme'");
+        }
+        if (!preg_match('/^(Layout\/)?[0-9a-zA-Z_-]+\.ss$/', $template)) {
+            throw new \InvalidArgumentException("Bad template '$template'");
+        }
 
         $this->stepCreateTheme($theme);
         $this->requireFile(BASE_PATH . '/themes/' . $theme . '/templates/' . $template, $content);

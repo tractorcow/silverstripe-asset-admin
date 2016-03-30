@@ -11,13 +11,17 @@ class AssetAdminTest extends SapphireTest
     {
         parent::setUp();
 
-        if(!file_exists(ASSETS_PATH)) mkdir(ASSETS_PATH);
+        if (!file_exists(ASSETS_PATH)) {
+            mkdir(ASSETS_PATH);
+        }
 
         // Create a test folders for each of the fixture references
         $folderIDs = $this->allFixtureIDs('Folder');
         foreach ($folderIDs as $folderID) {
             $folder = DataObject::get_by_id('Folder', $folderID);
-            if(!file_exists(BASE_PATH."/$folder->Filename")) mkdir(BASE_PATH."/$folder->Filename");
+            if (!file_exists(BASE_PATH."/$folder->Filename")) {
+                mkdir(BASE_PATH."/$folder->Filename");
+            }
         }
 
         // Create a test files for each of the fixture references
@@ -25,7 +29,7 @@ class AssetAdminTest extends SapphireTest
         foreach ($fileIDs as $fileID) {
             $file = DataObject::get_by_id('File', $fileID);
             $fh = fopen(BASE_PATH."/$file->Filename", "w");
-            fwrite($fh, str_repeat('x',1000000));
+            fwrite($fh, str_repeat('x', 1000000));
             fclose($fh);
         }
     }
@@ -38,7 +42,9 @@ class AssetAdminTest extends SapphireTest
         $fileIDs = $this->allFixtureIDs('File');
         foreach ($fileIDs as $fileID) {
             $file = DataObject::get_by_id('File', $fileID);
-            if($file && file_exists(BASE_PATH."/$file->Filename")) unlink(BASE_PATH."/$file->Filename");
+            if ($file && file_exists(BASE_PATH."/$file->Filename")) {
+                unlink(BASE_PATH."/$file->Filename");
+            }
         }
 
         // Remove the test folders that we've crated
