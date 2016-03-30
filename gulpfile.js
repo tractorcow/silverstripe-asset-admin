@@ -10,7 +10,8 @@ var gulp = require('gulp'),
 	packageJSON = require('./package.json'),
 	semver = require('semver'),
 	notify = require('gulp-notify'),
-	sourcemaps = require('gulp-sourcemaps');
+	sourcemaps = require('gulp-sourcemaps')
+	watchify = require('watchify');
 
 var PATHS = {
 	JAVASCRIPT_DIST: './javascript/dist',
