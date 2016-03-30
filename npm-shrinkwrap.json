@@ -8803,8 +8803,8 @@
       }
     },
     "react": {
-      "version": "0.14.7",
-      "resolved": "https://registry.npmjs.org/react/-/react-0.14.7.tgz",
+      "version": "0.14.8",
+      "resolved": "https://registry.npmjs.org/react/-/react-0.14.8.tgz",
       "dependencies": {
         "envify": {
           "version": "3.4.0",
@@ -8853,8 +8853,8 @@
               "resolved": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.1.0.tgz",
               "dependencies": {
                 "js-tokens": {
-                  "version": "1.0.2",
-                  "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-1.0.2.tgz"
+                  "version": "1.0.3",
+                  "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-1.0.3.tgz"
                 }
               }
             },
@@ -8881,28 +8881,28 @@
       }
     },
     "react-addons-css-transition-group": {
-      "version": "0.14.7",
-      "resolved": "https://registry.npmjs.org/react-addons-css-transition-group/-/react-addons-css-transition-group-0.14.7.tgz"
+      "version": "0.14.8",
+      "resolved": "https://registry.npmjs.org/react-addons-css-transition-group/-/react-addons-css-transition-group-0.14.8.tgz"
     },
     "react-addons-test-utils": {
-      "version": "0.14.7",
-      "resolved": "https://registry.npmjs.org/react-addons-test-utils/-/react-addons-test-utils-0.14.7.tgz"
+      "version": "0.14.8",
+      "resolved": "https://registry.npmjs.org/react-addons-test-utils/-/react-addons-test-utils-0.14.8.tgz"
     },
     "react-dom": {
-      "version": "0.14.7",
-      "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-0.14.7.tgz"
+      "version": "0.14.8",
+      "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-0.14.8.tgz"
     },
     "react-redux": {
-      "version": "4.4.0",
-      "resolved": "https://registry.npmjs.org/react-redux/-/react-redux-4.4.0.tgz",
+      "version": "4.4.1",
+      "resolved": "https://registry.npmjs.org/react-redux/-/react-redux-4.4.1.tgz",
       "dependencies": {
         "hoist-non-react-statics": {
           "version": "1.0.5",
           "resolved": "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-1.0.5.tgz"
         },
         "invariant": {
-          "version": "2.2.0",
-          "resolved": "https://registry.npmjs.org/invariant/-/invariant-2.2.0.tgz"
+          "version": "2.2.1",
+          "resolved": "https://registry.npmjs.org/invariant/-/invariant-2.2.1.tgz"
         },
         "lodash": {
           "version": "4.6.1",
@@ -8913,8 +8913,8 @@
           "resolved": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.1.0.tgz",
           "dependencies": {
             "js-tokens": {
-              "version": "1.0.2",
-              "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-1.0.2.tgz"
+              "version": "1.0.3",
+              "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-1.0.3.tgz"
             }
           }
         }
