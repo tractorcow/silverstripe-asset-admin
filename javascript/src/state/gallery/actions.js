@@ -1,5 +1,4 @@
 import { GALLERY } from './action-types';
-import CONSTANTS from 'constants.js';
 
 /**
  * Adds files to state.
@@ -8,12 +7,12 @@ import CONSTANTS from 'constants.js';
  * @param number [count] - The number of files in the current view.
  */
 export function addFiles(files, count) {
-    return (dispatch, getState) => {
-        return dispatch ({
-            type: GALLERY.ADD_FILES,
-            payload: { files, count }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.ADD_FILES,
+      payload: { files, count },
+    });
+  };
 }
 
 /**
@@ -22,12 +21,12 @@ export function addFiles(files, count) {
  * @param array ids - Array of file ids.
  */
 export function removeFiles(ids) {
-    return (dispatch, getState) => {
-        return dispatch ({
-            type: GALLERY.REMOVE_FILES,
-            payload: { ids }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.REMOVE_FILES,
+      payload: { ids },
+    });
+  };
 }
 
 /**
@@ -37,12 +36,12 @@ export function removeFiles(ids) {
  * @param object updates - The new values.
  */
 export function updateFile(id, updates) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.UPDATE_FILE,
-            payload: { id, updates }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.UPDATE_FILE,
+      payload: { id, updates },
+    });
+  };
 }
 
 /**
@@ -51,12 +50,12 @@ export function updateFile(id, updates) {
  * @param Array ids - Array of file ids to select.
  */
 export function selectFiles(ids = null) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SELECT_FILES,
-            payload: { ids }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SELECT_FILES,
+      payload: { ids },
+    });
+  };
 }
 
 /**
@@ -65,12 +64,12 @@ export function selectFiles(ids = null) {
  * @param Array ids - Array of file ids to deselect.
  */
 export function deselectFiles(ids = null) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.DESELECT_FILES,
-            payload: { ids }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.DESELECT_FILES,
+      payload: { ids },
+    });
+  };
 }
 
 /**
@@ -79,12 +78,12 @@ export function deselectFiles(ids = null) {
  * @param object|boolean file - The file to edit.
  */
 export function setEditing(file) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SET_EDITING,
-            payload: { file }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SET_EDITING,
+      payload: { file },
+    });
+  };
 }
 
 /**
@@ -93,12 +92,12 @@ export function setEditing(file) {
  * @param object editorFields - the current fields in the editor component
  */
 export function setEditorFields(editorFields = []) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SET_EDITOR_FIELDS,
-            payload: { editorFields }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SET_EDITOR_FIELDS,
+      payload: { editorFields },
+    });
+  };
 }
 
 /**
@@ -110,12 +109,12 @@ export function setEditorFields(editorFields = []) {
  * @param string [updates.label] - The field label.
  */
 export function updateEditorField(updates) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.UPDATE_EDITOR_FIELD,
-            payload: { updates }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.UPDATE_EDITOR_FIELD,
+      payload: { updates },
+    });
+  };
 }
 
 /**
@@ -125,12 +124,12 @@ export function updateEditorField(updates) {
  * @param string path - The path for pushState.
  */
 export function setPath(path) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SET_PATH,
-            payload: { path }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SET_PATH,
+      payload: { path },
+    });
+  };
 }
 
 /**
@@ -139,12 +138,12 @@ export function setPath(path) {
  * @param func comparator - Used to determine the sort order.
  */
 export function sortFiles(comparator) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SORT_FILES,
-            payload: { comparator }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SORT_FILES,
+      payload: { comparator },
+    });
+  };
 }
 
 /**
@@ -153,12 +152,12 @@ export function sortFiles(comparator) {
  * @param boolean viewingFolder
  */
 export function setViewingFolder(viewingFolder) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SET_VIEWING_FOLDER,
-            payload: { viewingFolder }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SET_VIEWING_FOLDER,
+      payload: { viewingFolder },
+    });
+  };
 }
 
 /**
@@ -167,12 +166,12 @@ export function setViewingFolder(viewingFolder) {
  * @param number parentID
  */
 export function setParentFolderId(parentFolderID) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SET_PARENT_FOLDER_ID,
-            payload: { parentFolderID }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SET_PARENT_FOLDER_ID,
+      payload: { parentFolderID },
+    });
+  };
 }
 
 /**
@@ -181,10 +180,10 @@ export function setParentFolderId(parentFolderID) {
  * @param number folderID
  */
 export function setFolderId(folderID) {
-    return (dispatch, getState) => {
-        return dispatch({
-            type: GALLERY.SET_FOLDER_ID,
-            payload: { folderID }
-        });
-    }
+  return (dispatch) => {
+    return dispatch({
+      type: GALLERY.SET_FOLDER_ID,
+      payload: { folderID },
+    });
+  };
 }
