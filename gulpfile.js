@@ -10,7 +10,7 @@ var gulp = require('gulp'),
 	packageJSON = require('./package.json'),
 	semver = require('semver'),
 	notify = require('gulp-notify'),
-    sourcemaps = require('gulp-sourcemaps');
+	sourcemaps = require('gulp-sourcemaps');
 
 var PATHS = {
 	JAVASCRIPT_DIST: './javascript/dist',
@@ -56,6 +56,7 @@ gulp.task('js', function bundleJavaScript() {
 		.external('redux-thunk')
 		.external('page.js')
 		.external('react-addons-css-transition-group')
+		.external('components/text-field/index')
 		.bundle()
 		.on('update', bundleJavaScript)
 		.on('error', notify.onError({ message: 'Error: <%= error.message %>' }))

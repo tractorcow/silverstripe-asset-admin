@@ -5,7 +5,7 @@ import SilverStripeComponent from 'silverstripe-component';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as galleryActions from 'state/gallery/actions';
-import TextFieldComponent from 'components/text-field';
+import TextFieldComponent from 'components/text-field/index';
 import CONSTANTS from 'constants.js';
 
 class EditorContainer extends SilverStripeComponent {
