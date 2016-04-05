@@ -17,14 +17,14 @@ class AssetAdminTest extends SapphireTest
         $folderIDs = $this->allFixtureIDs('Folder');
         foreach ($folderIDs as $folderID) {
             $folder = DataObject::get_by_id('Folder', $folderID);
-            if(!file_exists(BASE_PATH."/$folder->Filename")) mkdir(BASE_PATH."/$folder->Filename");
+            if(!file_exists(BASE_PATH."/$folder->Filename")) mkdir(BASE_PATH."/".$folder->generateFilename());
         }
 
         // Create a test files for each of the fixture references
         $fileIDs = $this->allFixtureIDs('File');
         foreach ($fileIDs as $fileID) {
             $file = DataObject::get_by_id('File', $fileID);
-            $fh = fopen(BASE_PATH."/$file->Filename", "w");
+            $fh = fopen(BASE_PATH."/".$file->generateFilename(), "w");
             fwrite($fh, str_repeat('x',1000000));
             fclose($fh);
         }
@@ -38,15 +38,15 @@ class AssetAdminTest extends SapphireTest
         $fileIDs = $this->allFixtureIDs('File');
         foreach ($fileIDs as $fileID) {
             $file = DataObject::get_by_id('File', $fileID);
-            if($file && file_exists(BASE_PATH."/$file->Filename")) unlink(BASE_PATH."/$file->Filename");
+            if($file && file_exists(BASE_PATH."/".$file->generateFilename())) unlink(BASE_PATH."/".$file->generateFilename());
         }
 
         // Remove the test folders that we've crated
         $folderIDs = $this->allFixtureIDs('Folder');
         foreach ($folderIDs as $folderID) {
             $folder = DataObject::get_by_id('Folder', $folderID);
-            if ($folder && file_exists(BASE_PATH."/$folder->Filename")) {
-                Filesystem::removeFolder(BASE_PATH."/$folder->Filename");
+            if ($folder && file_exists(BASE_PATH."/".$folder->generateFilename())) {
+                Filesystem::removeFolder(BASE_PATH."/".$folder->generateFilename());
             }
         }
 
