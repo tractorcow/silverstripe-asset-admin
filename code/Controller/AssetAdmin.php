@@ -8,6 +8,7 @@ use SilverStripe\Admin\CMSBatchActionHandler;
 use SilverStripe\Admin\LeftAndMain;
 use SilverStripe\AssetAdmin\BatchAction\DeleteAssets;
 use SilverStripe\AssetAdmin\Forms\AssetFormFactory;
+use SilverStripe\AssetAdmin\Forms\FileSearchFormFactory;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\AssetAdmin\Forms\FileFormFactory;
 use SilverStripe\AssetAdmin\Forms\FolderFormFactory;
@@ -68,7 +69,6 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         'GET api/readFolder' => 'apiReadFolder',
         'PUT api/updateFolder' => 'apiUpdateFolder',
         'DELETE api/delete' => 'apiDelete',
-        'GET api/search' => 'apiSearch',
         'GET api/history' => 'apiHistory'
     ];
 
@@ -106,13 +106,13 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         'apiUpdateFolder',
         'apiHistory',
         'apiDelete',
-        'apiSearch',
         'fileEditForm',
         'fileHistoryForm',
         'addToCampaignForm',
         'fileInsertForm',
         'schema',
         'fileSelectForm',
+        'fileSearchForm',
     );
 
     private static $required_permission_codes = 'CMS_ACCESS_AssetAdmin';
@@ -155,11 +155,6 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
                 'method' => 'get',
                 'responseFormat' => 'json',
             ],
-            'searchEndpoint' => [
-                'url' => Controller::join_links($baseLink, 'api/search'),
-                'method' => 'get',
-                'responseFormat' => 'json',
-            ],
             'updateFolderEndpoint' => [
                 'url' => Controller::join_links($baseLink, 'api/updateFolder'),
                 'method' => 'put',
@@ -196,7 +191,10 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
                 ],
                 'fileHistoryForm' => [
                     'schemaUrl' => $this->Link('schema/fileHistoryForm')
-                ]
+                ],
+                'fileSearchForm' => [
+                    'schemaUrl' => $this->Link('schema/fileSearchForm')
+                ],
             ],
         ]);
     }
@@ -213,6 +211,7 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         $items = array();
         $parentId = null;
         $folderID = null;
+        $query = isset($params['search']) ? $params['search'] : [];
 
         if (!isset($params['id']) && !strlen($params['id'])) {
             $this->httpError(400);
@@ -227,7 +226,12 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         }
 
         // TODO Limit results to avoid running out of memory (implement client-side pagination)
-        $files = $this->getList()->filter('ParentID', $folderID);
+        if (empty($query['AllFolders'])) {
+            $query['ParentID'] = $folderID;
+        } else {
+            unset($query['AllFolders']);
+        }
+        $files = $this->getList($query);
 
         if ($files) {
             /** @var File $file */
@@ -305,29 +309,6 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
             'folderID' => $folderID,
             'canEdit' => $folder->canEdit(),
             'canDelete' => $folder->canArchive(),
-        ]));
-
-        return $response;
-    }
-
-    /**
-     * @param HTTPRequest $request
-     *
-     * @return HTTPResponse
-     */
-    public function apiSearch(HTTPRequest $request)
-    {
-        $params = $request->getVars();
-        $list = $this->getList($params);
-
-        $response = new HTTPResponse();
-        $response->addHeader('Content-Type', 'application/json');
-        $response->setBody(json_encode([
-            // Serialisation
-            "files" => array_map(function ($file) {
-                return $this->getObjectFromData($file);
-            }, $list->toArray()),
-            "count" => $list->count(),
         ]));
 
         return $response;
@@ -716,66 +697,6 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
             'edit',
             $file->ID
         );
-    }
-
-    /**
-     * Get the search context from {@link File}, used to create the search form
-     * as well as power the /search API endpoint.
-     *
-     * @return SearchContext
-     */
-    public function getSearchContext()
-    {
-        $context = File::singleton()->getDefaultSearchContext();
-
-        // Customize fields
-        $dateHeader = HeaderField::create('Date', _t('CMSSearch.FILTERDATEHEADING', 'Date'), 4);
-        $dateFrom = DateField::create('CreatedFrom', _t('CMSSearch.FILTERDATEFROM', 'From'))
-        ->setConfig('showcalendar', true);
-        $dateTo = DateField::create('CreatedTo', _t('CMSSearch.FILTERDATETO', 'To'))
-        ->setConfig('showcalendar', true);
-        $dateGroup = FieldGroup::create(
-            $dateHeader,
-            $dateFrom,
-            $dateTo
-        );
-        $context->addField($dateGroup);
-        /** @skipUpgrade */
-        $appCategories = array(
-            'archive' => _t(
-                'SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.AppCategoryArchive',
-                'Archive'
-            ),
-            'audio' => _t('SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.AppCategoryAudio', 'Audio'),
-            'document' => _t('SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.AppCategoryDocument', 'Document'),
-            'flash' => _t(
-                'SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.AppCategoryFlash',
-                'Flash',
-                'The fileformat'
-            ),
-            'image' => _t('SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.AppCategoryImage', 'Image'),
-            'video' => _t('SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.AppCategoryVideo', 'Video'),
-        );
-        $context->addField(
-            $typeDropdown = new DropdownField(
-                'AppCategory',
-                _t('SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.Filetype', 'File type'),
-                $appCategories
-            )
-        );
-
-        $typeDropdown->setEmptyString(' ');
-
-        $currentfolderLabel = _t(
-            'SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.CurrentFolderOnly',
-            'Limit to current folder?'
-        );
-        $context->addField(
-            new CheckboxField('CurrentFolderOnly', $currentfolderLabel)
-        );
-        $context->getFields()->removeByName('Title');
-
-        return $context;
     }
 
     /**
@@ -1241,17 +1162,10 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
      */
     protected function getList($params = array())
     {
-        $context = $this->getSearchContext();
-
-        // Overwrite name filter to search both Name and Title attributes
-        $context->removeFilterByName('Name');
-
-        // Lazy loaded list. Allows adding new filters through SearchContext.
         /** @var DataList $list */
-        $list = $context->getResults($params);
+        $list = File::get();
 
         // Re-add previously removed "Name" filter as combined filter
-        // TODO Replace with composite SearchFilter once that API exists
         if (!empty($params['Name'])) {
             $list = $list->filterAny(array(
                 'Name:PartialMatch' => $params['Name'],
@@ -1260,7 +1174,7 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         }
 
         // Optionally limit search to a folder (non-recursive)
-        if (!empty($params['ParentID']) && is_numeric($params['ParentID'])) {
+        if (isset($params['ParentID']) && is_numeric($params['ParentID'])) {
             $list = $list->filter('ParentID', $params['ParentID']);
         }
 
@@ -1275,9 +1189,10 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         }
 
         // Categories
-        if (!empty($filters['AppCategory']) && !empty(File::config()->app_categories[$filters['AppCategory']])) {
-            $extensions = File::config()->app_categories[$filters['AppCategory']];
-            $list = $list->filter('Name:PartialMatch', $extensions);
+        $categories = File::config()->app_categories;
+        if (!empty($filters['AppCategory']) && !empty($categories[$filters['AppCategory']])) {
+            $extensions = $categories[$filters['AppCategory']];
+            $list = $list->filter('Name:EndsWith', $extensions);
         }
 
         // Sort folders first
@@ -1404,5 +1319,27 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
         $schemaData = ['record' => $this->getObjectFromData($record)];
         $schemaId = Controller::join_links($this->Link('schema/fileEditForm'), $record->ID);
         return $this->getSchemaResponse($schemaId, $form, null, $schemaData);
+    }
+
+    /**
+     * Scaffold a search form.
+     * Note: This form does not submit to itself, but rather uses the apiReadFolder endpoint
+     * (to be replaced with graphql)
+     *
+     * @return Form
+     */
+    public function fileSearchForm()
+    {
+        $scaffolder = FileSearchFormFactory::singleton();
+        return $scaffolder->getForm($this, 'fileSearchForm', []);
+    }
+
+    /**
+     * Allow search form to be accessible to schema
+     *
+     * @return Form
+     */
+    public function getFileSearchform() {
+        return $this->fileSearchForm();
     }
 }

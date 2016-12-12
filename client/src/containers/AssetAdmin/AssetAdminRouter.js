@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import AssetAdmin from 'containers/AssetAdmin/AssetAdmin';
-import { urlQuery } from 'lib/DataFormat';
+import { urlQuery, decodeQuery } from 'lib/DataFormat';
 
 const sectionConfigKey = 'SilverStripe\\AssetAdmin\\Controller\\AssetAdmin';
 
@@ -16,21 +16,27 @@ class AssetAdminRouter extends Component {
 
   /**
    * Generates the Url for a given folder and file ID.
+   * Note: Leaving newQuery empty will default to the current querystring.
+   * Setting it to an empty object will clear it.
+   * Setting it to a non-empty object will replace it
    *
    * @param {number} [folderId]
    * @param {number} [fileId]
    * @param {object|null} [newQuery]
    * @returns {string}
    */
-  getUrl(folderId = 0, fileId, newQuery) {
-    const base = this.props.sectionConfig.url;
-    let url = `${base}/show/${folderId}`;
+  getUrl(folderId = 0, fileId = null, newQuery = null) {
+    let url = this.props.sectionConfig.url;
 
     if (fileId) {
-      url = `${url}/edit/${fileId}`;
+      url = `${url}/show/${folderId}/edit/${fileId}`;
+    } else if (folderId) {
+      url = `${url}/show/${folderId}`;
+    } else {
+      url = `${url}/`;
     }
 
-    const search = urlQuery(this.props.location, newQuery);
+    const search = urlQuery(this.getQuery(), newQuery);
     if (search) {
       url = `${url}${search}`;
     }
@@ -43,15 +49,32 @@ class AssetAdminRouter extends Component {
    * @returns {object}
    */
   getSectionProps() {
+    let folderId = 0;
+    if (this.props.params && this.props.params.folderId) {
+      folderId = parseInt(this.props.params.folderId, 10);
+    }
+    let fileId = 0;
+    if (this.props.params && this.props.params.fileId) {
+      fileId = parseInt(this.props.params.fileId, 10);
+    }
     return {
       sectionConfig: this.props.sectionConfig,
       type: 'admin',
-      folderId: parseInt(this.props.params.folderId, 10),
-      fileId: parseInt(this.props.params.fileId, 10),
-      query: this.props.location.query,
+      folderId,
+      fileId,
+      query: this.getQuery(),
       getUrl: this.getUrl,
       onBrowse: this.handleBrowse,
     };
+  }
+
+  /**
+   * Get decoded query object
+   *
+   * @returns {Object}
+   */
+  getQuery() {
+    return decodeQuery(this.props.location.search);
   }
 
   /**
@@ -87,11 +110,9 @@ AssetAdminRouter.propTypes = {
   location: PropTypes.shape({
     pathname: PropTypes.string,
     query: PropTypes.object,
+    search: PropTypes.string,
   }),
-  params: PropTypes.shape({
-    fileId: PropTypes.string,
-    folderId: PropTypes.string,
-  }),
+  params: PropTypes.object,
   router: PropTypes.object,
 };
 

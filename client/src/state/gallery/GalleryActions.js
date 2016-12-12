@@ -49,14 +49,14 @@ export function deleteItems(deleteApi, ids) {
 /**
  * Load the contents of a folder from the API
  */
-export function loadFolderContents(listApi, folderId, limit, page, sort) {
+export function loadFolderContents(listApi, folderId, limit, page, sort, search) {
   return (dispatch) => {
     dispatch({
       type: GALLERY.LOAD_FOLDER_REQUEST,
       payload: { folderId: parseInt(folderId, 10) },
     });
 
-    return listApi({ id: folderId, limit, page, sort })
+    return listApi({ id: folderId, limit, page, sort, search })
       .then((data) => {
         dispatch({
           type: GALLERY.LOAD_FOLDER_SUCCESS,

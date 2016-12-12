@@ -10,6 +10,7 @@ import Editor from 'containers/Editor/Editor';
 import Gallery from 'containers/Gallery/Gallery';
 import Breadcrumb from 'components/Breadcrumb/Breadcrumb';
 import Toolbar from 'components/Toolbar/Toolbar';
+import Search from 'components/Search/Search';
 
 class AssetAdmin extends SilverStripeComponent {
 
@@ -18,6 +19,7 @@ class AssetAdmin extends SilverStripeComponent {
     this.handleOpenFile = this.handleOpenFile.bind(this);
     this.handleCloseFile = this.handleCloseFile.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleDoSearch = this.handleDoSearch.bind(this);
     this.handleSubmitEditor = this.handleSubmitEditor.bind(this);
     this.handleOpenFolder = this.handleOpenFolder.bind(this);
     this.handleSort = this.handleSort.bind(this);
@@ -74,6 +76,31 @@ class AssetAdmin extends SilverStripeComponent {
     this.handleBrowse(this.props.folderId, this.props.fileId, {
       page,
     });
+  }
+
+  /**
+   * Reset to new search results page
+   *
+   * @param {Object} data
+   */
+  handleDoSearch(data) {
+    // Reset current query
+    const query = Object.assign({}, this.getBlankQuery(), { q: data });
+    const folderID = data.AllFolders ? 0 : this.props.folderId;
+    this.handleBrowse(folderID, 0, query);
+  }
+
+  /**
+   * Generate a blank query based on current query
+   *
+   * @return {Object}
+   */
+  getBlankQuery() {
+    const query = {};
+    Object.keys(this.props.query).forEach((key) => {
+      query[key] = undefined;
+    });
+    return query;
   }
 
   /**
@@ -294,6 +321,7 @@ class AssetAdmin extends SilverStripeComponent {
 
     const sort = this.props.query && this.props.query.sort;
     const view = this.props.query && this.props.query.view;
+    const search = (this.props.query && this.props.query.q) || {};
 
     return (
       <Gallery
@@ -304,6 +332,7 @@ class AssetAdmin extends SilverStripeComponent {
         limit={limit}
         page={page}
         view={view}
+        search={search}
         createFileApiUrl={createFileApiUrl}
         createFileApiMethod={createFileApiMethod}
         createFolderApi={this.endpoints.createFolderApi}
@@ -365,10 +394,16 @@ class AssetAdmin extends SilverStripeComponent {
 
   render() {
     const showBackButton = !!(this.props.folder && this.props.folder.id);
-
+    const searchFormSchemaUrl = this.props.sectionConfig.form.fileSearchForm.schemaUrl;
+    const query = (this.props.query && this.props.query.q) || {};
     return (
       <div className="fill-height">
         <Toolbar showBackButton={showBackButton} handleBackButtonClick={this.handleBackButtonClick}>
+          {this.props.toolbarChildren}
+          <Search handleDoSearch={this.handleDoSearch} id="AssetSearchForm"
+            searchFormSchemaUrl={searchFormSchemaUrl} folderId={this.props.folderId}
+            query={query}
+          />
           <Breadcrumb multiline />
         </Toolbar>
         <div className="flexbox-area-grow fill-width fill-height gallery">
@@ -399,6 +434,7 @@ AssetAdmin.propTypes = {
     sort: PropTypes.string,
     limit: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     page: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    q: PropTypes.object,
   }),
   onSubmitEditor: PropTypes.func,
   type: PropTypes.oneOf(['insert', 'select', 'admin']),

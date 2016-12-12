@@ -152,6 +152,7 @@ class Gallery extends Component {
       || nextProps.limit !== prevProps.limit
       || nextProps.page !== prevProps.page
       || nextProps.sort !== prevProps.sort
+      || JSON.stringify(nextProps.search) !== JSON.stringify(prevProps.search)
     ) {
       // TODO move this to AssetAdmin, anti-pattern for child to set props/state for parent
       this.props.actions.gallery.deselectFiles();
@@ -160,7 +161,8 @@ class Gallery extends Component {
         nextProps.folderId,
         nextProps.limit,
         nextProps.page,
-        nextProps.sort
+        nextProps.sort,
+        nextProps.search
       );
     }
   }
@@ -484,6 +486,7 @@ class Gallery extends Component {
           key={index}
           className={classNames.join(' ')}
           type="button"
+          title="Change view gallery/list"
           onClick={this.handleViewChange}
           value={view}
         >
@@ -510,6 +513,7 @@ class Gallery extends Component {
       return (
         <button
           className={classes}
+          title="Navigate up a level"
           onClick={this.handleBackClick}
           ref="backButton"
         >
@@ -756,12 +760,12 @@ Gallery.propTypes = Object.assign({}, sharedPropTypes, {
   actions: PropTypes.object.isRequired,
   securityId: PropTypes.string,
   onViewChange: PropTypes.func.isRequired,
-
   createFileApiUrl: PropTypes.string,
   createFileApiMethod: PropTypes.string,
   createFolderApi: PropTypes.func,
   readFolderApi: PropTypes.func,
   deleteApi: PropTypes.func,
+  search: PropTypes.object,
 });
 
 function mapStateToProps(state) {

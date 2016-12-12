@@ -6,8 +6,6 @@ const initialState = {
   editorFields: [], // The input fields for editing files. Hardcoded until form field schema is implemented.
   file: null,
   files: [],
-  fileId: 0,
-  folderId: 0,
   focus: false,
   path: null, // The current location path the app is on
   selectedFiles: [],
