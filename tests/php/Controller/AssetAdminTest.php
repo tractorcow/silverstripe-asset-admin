@@ -278,53 +278,71 @@ class AssetAdminTest extends FunctionalTest
 
         // Mock searches for 4th Jan
         $results = $this->getResultsForSearch([
-            'CreatedFrom' => '2014-01-04',
-            'CreatedTo' => '2014-01-04'
+            'search' => [
+                'CreatedFrom' => '2014-01-04',
+                'CreatedTo' => '2014-01-04',
+                'AllFolders' => '1'
+            ]
         ]);
-        $this->assertEquals(count($results['files']), 0);
+        $this->assertEquals(0, count($results['files']));
 
         // Mock searches for 5th Jan
         $results = $this->getResultsForSearch([
-            'CreatedFrom' => '2014-01-05',
-            'CreatedTo' => '2014-01-05'
+            'search' => [
+                'CreatedFrom' => '2014-01-05',
+                'CreatedTo' => '2014-01-05',
+                'AllFolders' => '1'
+            ]
         ]);
-        $this->assertEquals(count($results['files']), 1);
+        $this->assertEquals(1, count($results['files']));
         $this->assertContains($file1->ID, array_column($results['files'], 'id'));
 
 
         // Mock searches for 5th-6th Jan
         $results = $this->getResultsForSearch([
-            'CreatedFrom' => '2014-01-05',
-            'CreatedTo' => '2014-01-06'
+            'search' => [
+                'CreatedFrom' => '2014-01-05',
+                'CreatedTo' => '2014-01-06',
+                'AllFolders' => '1'
+            ]
         ]);
-        $this->assertEquals(count($results['files']), 2);
+        $this->assertEquals(2, count($results['files']));
         $this->assertContains($file1->ID, array_column($results['files'], 'id'));
         $this->assertContains($file2->ID, array_column($results['files'], 'id'));
 
         // Mock searches for 6th Jan
         $results = $this->getResultsForSearch([
-            'CreatedFrom' => '2014-01-06',
-            'CreatedTo' => '2014-01-06'
+            'search' => [
+                'CreatedFrom' => '2014-01-06',
+                'CreatedTo' => '2014-01-06',
+                'AllFolders' => '1'
+            ]
         ]);
-        $this->assertEquals(count($results['files']), 1);
+        $this->assertEquals(1, count($results['files']));
         $this->assertContains($file2->ID, array_column($results['files'], 'id'));
 
         // Mock searches for 7th Jan
         $results = $this->getResultsForSearch([
-            'CreatedFrom' => '2014-01-07',
-            'CreatedTo' => '2014-01-07'
+            'search' => [
+                'CreatedFrom' => '2014-01-07',
+                'CreatedTo' => '2014-01-07',
+                'AllFolders' => '1'
+            ]
         ]);
-        $this->assertEquals(count($results['files']), 0);
+        $this->assertEquals(0, count($results['files']));
     }
 
-
-    public function testItDoesNotFilterByDefaultInSearch()
+    public function testItDoesNotFilterWithAllFoldersFlagInSearch()
     {
         $rootfile = $this->objFromFixture(File::class, 'rootfile');
         $file1 = $this->objFromFixture(File::class, 'file1');
         $folder1 = $this->objFromFixture(Folder::class, 'folder1');
 
-        $results = $this->getResultsForSearch();
+        $results = $this->getResultsForSearch([
+            'search' => [
+                'AllFolders' => '1'
+            ]
+        ]);
         $this->assertContains(
             $rootfile->ID,
             array_column($results['files'], 'id'),
@@ -342,6 +360,27 @@ class AssetAdminTest extends FunctionalTest
         );
     }
 
+    public function testItDoesFilterWithFolderByDefaultInSearch()
+    {
+        $rootfile = $this->objFromFixture(File::class, 'rootfile');
+        $file1 = $this->objFromFixture(File::class, 'file1');
+        $folder1 = $this->objFromFixture(Folder::class, 'folder1');
+
+        $results = $this->getResultsForSearch([
+            'id' => $folder1->ID
+        ]);
+        $this->assertNotContains(
+            $rootfile->ID,
+            array_column($results['files'], 'id'),
+            'Not contain top level file'
+        );
+        $this->assertContains(
+            $file1->ID,
+            array_column($results['files'], 'id'),
+            'Contains files in subfolder'
+        );
+    }
+
     public function testItFiltersByParentInSearch()
     {
         $file1 = $this->objFromFixture(File::class, 'file1');
@@ -349,18 +388,28 @@ class AssetAdminTest extends FunctionalTest
         $file1Folder = $file1->Parent();
         $file2Folder = $file2->Parent();
 
-        $results = $this->getResultsForSearch(['Name' => $file1->Name, 'ParentID' => $file1Folder->ID]);
-        $this->assertEquals(count($results['files']), 1);
+        $results = $this->getResultsForSearch([
+            'id' => $file1Folder->ID,
+            'search' => [
+                'Name' => $file1->Name
+            ]
+        ]);
+        $this->assertEquals(1, count($results['files']));
         $this->assertContains(
             $file1->ID,
             array_column($results['files'], 'id'),
             'Returns file when contained in correct folder'
         );
 
-        $results = $this->getResultsForSearch(['Name' => $file1->Name, 'ParentID' => $file2Folder->ID]);
+        $results = $this->getResultsForSearch([
+            'id' => $file2Folder->ID,
+            'search' => [
+                'Name' => $file1->Name
+            ]
+        ]);
         $this->assertEquals(
-            count($results['files']),
             0,
+            count($results['files']),
             'Does not return file when contained in different folder'
         );
     }
@@ -369,18 +418,28 @@ class AssetAdminTest extends FunctionalTest
     {
         $file1 = $this->objFromFixture(File::class, 'file1');
 
-        $results = $this->getResultsForSearch(['Name' => $file1->Name]);
+        $results = $this->getResultsForSearch([
+            'search' => [
+                'Name' => $file1->Name,
+                'AllFolders' => '1'
+            ]
+        ]);
         $this->assertEquals(
-            count($results['files']),
             1,
+            count($results['files']),
             'Finds by Name property'
         );
         $this->assertContains($file1->ID, array_column($results['files'], 'id'));
 
-        $results = $this->getResultsForSearch(['Name' => 'First']);
+        $results = $this->getResultsForSearch([
+            'search' => [
+                'Name' => $file1->Title,
+                'AllFolders' => '1'
+            ]
+        ]);
         $this->assertEquals(
-            count($results['files']),
             1,
+            count($results['files']),
             'Finds by Title property'
         );
         $this->assertContains($file1->ID, array_column($results['files'], 'id'));
@@ -391,12 +450,22 @@ class AssetAdminTest extends FunctionalTest
         $allowedFile = $this->objFromFixture(File::class, 'file1');
         $disallowedFile = $this->objFromFixture(File::class, 'disallowCanView');
 
-        $results = $this->getResultsForSearch(['Name' => $allowedFile->Name]);
-        $this->assertEquals(count($results['files']), 1);
+        $results = $this->getResultsForSearch([
+            'search' => [
+                'Name' => $allowedFile->Name,
+                'AllFolders' => '1'
+            ]
+        ]);
+        $this->assertEquals(1, count($results['files']));
         $this->assertContains($allowedFile->ID, array_column($results['files'], 'id'));
 
-        $results = $this->getResultsForSearch(['Name' => $disallowedFile->Name]);
-        $this->assertEquals(count($results['files']), 0);
+        $results = $this->getResultsForSearch([
+            'search' => [
+                'Name' => $disallowedFile->Name,
+                'AllFolders' => '1'
+            ]
+        ]);
+        $this->assertEquals(0, count($results['files']));
     }
 
     public function testItRestrictsViewInReadFolder()
@@ -484,7 +553,11 @@ class AssetAdminTest extends FunctionalTest
      */
     protected function getResultsForSearch($params = array())
     {
-        $response = $this->get('admin/assets/api/search?' . http_build_query($params));
+        $query = array_merge(
+            [ 'id' => 0 ],
+            $params
+        );
+        $response = $this->get('admin/assets/api/readFolder?' . http_build_query($query));
         $this->assertFalse($response->isError());
 
         return json_decode($response->getBody(), true);

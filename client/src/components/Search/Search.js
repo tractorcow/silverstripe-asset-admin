@@ -7,6 +7,8 @@ import SilverStripeComponent from 'lib/SilverStripeComponent';
 import FormBuilderLoader from 'containers/FormBuilderLoader/FormBuilderLoader';
 import { Collapse } from 'react-bootstrap-ss';
 import * as schemaActions from 'state/schema/SchemaActions';
+import { reset, initialize } from 'redux-form';
+import { hasSearch } from 'lib/search';
 
 const view = {
   NONE: 'NONE',
@@ -21,11 +23,18 @@ class Search extends SilverStripeComponent {
     this.expand = this.expand.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.doSearch = this.doSearch.bind(this);
+    this.focusInput = this.focusInput.bind(this);
+    this.focusFirstFormField = this.focusFirstFormField.bind(this);
     this.hide = this.hide.bind(this);
     this.show = this.show.bind(this);
     this.toggle = this.toggle.bind(this);
-    this.state = { view: view.NONE };
+    this.open = this.open.bind(this);
+    this.state = {
+      view: view.NONE,
+      searchText: this.props.query && this.props.query.Name || '',
+    };
   }
 
   componentWillMount() {
@@ -39,18 +48,46 @@ class Search extends SilverStripeComponent {
   }
 
   componentWillReceiveProps(props) {
-    if (JSON.stringify(props.query) !== JSON.stringify(this.props.query)) {
+    if (!hasSearch(props.query) && hasSearch(this.props.query)) {
+      this.clearFormData(props);
+    } else if (JSON.stringify(props.query) !== JSON.stringify(this.props.query)) {
       this.setOverrides(props);
     }
   }
 
-  componentDidUpdate() {
+  focusInput() {
     if (this.state.view !== view.NONE) {
       const node = ReactDOM.findDOMNode(this.refs.contentInput);
-      if (node) {
+      // check that it doesn't already have focus
+      if (node !== document.activeElement) {
         node.focus();
         node.select();
       }
+    }
+  }
+
+  focusFirstFormField() {
+    if (this.state.view === view.EXPANDED) {
+      const form = ReactDOM.findDOMNode(this.refs.contentForm);
+      const node = form && form.querySelector('input, textarea, select');
+      if (node) {
+        node.focus();
+        if (node.select) {
+          node.select();
+        }
+      }
+    }
+  }
+
+  clearFormData(props) {
+    this.setState({ searchText: '' });
+
+    const schemaUrl = props && props.searchFormSchemaUrl || this.props.searchFormSchemaUrl;
+    if (schemaUrl) {
+      this.props.actions.reduxForm.initialize(schemaUrl, {}, Object.keys(this.props.formData));
+      this.props.actions.reduxForm.reset(schemaUrl);
+
+      this.props.actions.schema.setSchemaStateOverrides(schemaUrl, null);
     }
   }
 
@@ -60,15 +97,15 @@ class Search extends SilverStripeComponent {
    * @param {Object} props
    */
   setOverrides(props) {
-    const hasSearch = props && props.query && (JSON.stringify(props.query) !== JSON.stringify({}));
-    if (!hasSearch || this.props.schemaUrl !== props.schemaUrl) {
+    const search = hasSearch(props.query);
+    if (!search || this.props.searchFormSchemaUrl !== props.searchFormSchemaUrl) {
       // clear any overrides that may be in place
       const schemaUrl = props && props.searchFormSchemaUrl || this.props.searchFormSchemaUrl;
       if (schemaUrl) {
         this.props.actions.schema.setSchemaStateOverrides(schemaUrl, null);
       }
     }
-    if (hasSearch && props.searchFormSchemaUrl) {
+    if (search && props.searchFormSchemaUrl) {
       const query = props.query || {};
 
       const overrides = {
@@ -103,6 +140,10 @@ class Search extends SilverStripeComponent {
     }
   }
 
+  handleChange(event) {
+    this.setState({ searchText: event.target.value });
+  }
+
   /**
    * Handle enter key submission in search box
    *
@@ -112,6 +153,11 @@ class Search extends SilverStripeComponent {
     if (event.keyCode === 13) {
       this.doSearch();
     }
+  }
+
+  open() {
+    this.show();
+    setTimeout(this.focusInput, 50);
   }
 
   /**
@@ -144,6 +190,7 @@ class Search extends SilverStripeComponent {
     switch (this.state.view) {
       case view.VISIBLE:
         this.expand();
+        setTimeout(this.focusFirstFormField, 50);
         break;
       case view.EXPANDED:
         this.show();
@@ -157,13 +204,12 @@ class Search extends SilverStripeComponent {
     const data = {};
 
     // Merge data from redux-forms with text field
-    const node = ReactDOM.findDOMNode(this.refs.contentInput);
-    if (node.value) {
-      data.Name = node.value;
+    if (this.state.searchText) {
+      data.Name = this.state.searchText;
     }
     // Filter empty values
-    Object.keys(this.props.data).forEach((key) => {
-      const value = this.props.data[key];
+    Object.keys(this.props.formData).forEach((key) => {
+      const value = this.props.formData[key];
       if (!value) {
         return;
       }
@@ -179,17 +225,17 @@ class Search extends SilverStripeComponent {
     });
 
     // Invert "CurrentFolderOnly" into "deep" flag
-    if (!this.props.data.CurrentFolderOnly) {
+    if (!this.props.formData.CurrentFolderOnly) {
       data.AllFolders = 1;
     }
 
-    this.props.handleDoSearch(data);
+    this.props.onSearch(data);
   }
 
   render() {
     const formId = `${this.props.id}_ExtraFields`;
     const triggerId = `${this.props.id}_Trigger`;
-    const searchText = (this.props.query && this.props.query.Name) || '';
+    const searchText = this.state.searchText;
 
     // Build classes
     const searchClasses = ['search', 'pull-xs-right'];
@@ -223,7 +269,7 @@ class Search extends SilverStripeComponent {
           aria-owns={this.props.id}
           aria-controls={this.props.id}
           aria-expanded="false"
-          onClick={this.show}
+          onClick={this.open}
           id={triggerId}
         >
         </button>
@@ -235,8 +281,9 @@ class Search extends SilverStripeComponent {
             ref="contentInput"
             placeholder={i18n._t('AssetAdmin.SEARCH', 'Search')}
             className="form-control search__content-field"
-            defaultValue={searchText}
             onKeyUp={this.handleKeyUp}
+            onChange={this.handleChange}
+            value={searchText}
             autoFocus
           />
           <button
@@ -263,7 +310,7 @@ class Search extends SilverStripeComponent {
           </button>
 
           <Collapse in={expanded}>
-            <div id={formId} className="search__filter-panel">
+            <div id={formId} className="search__filter-panel" ref="contentForm">
               <FormBuilderLoader schemaUrl={this.props.searchFormSchemaUrl} />
             </div>
           </Collapse>
@@ -278,23 +325,25 @@ Search.propTypes = {
   id: PropTypes.string.isRequired,
   data: PropTypes.object,
   folderId: PropTypes.number,
-  handleDoSearch: PropTypes.func.isRequired,
+  onSearch: PropTypes.func.isRequired,
   query: PropTypes.object,
+  formData: PropTypes.object,
 };
 
 function mapStateToProps(state, ownProps) {
-  let data = {};
+  let formData = {};
   const form = state.form[ownProps.searchFormSchemaUrl];
   if (form && form.values) {
-    data = form.values;
+    formData = form.values;
   }
-  return { data };
+  return { formData };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     actions: {
       schema: bindActionCreators(schemaActions, dispatch),
+      reduxForm: bindActionCreators({ reset, initialize }, dispatch),
     },
   };
 }

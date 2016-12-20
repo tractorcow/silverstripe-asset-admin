@@ -23,18 +23,13 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DateField;
-use SilverStripe\Forms\DropdownField;
-use SilverStripe\Forms\FieldGroup;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormFactory;
-use SilverStripe\Forms\HeaderField;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBHTMLText;
-use SilverStripe\ORM\Search\SearchContext;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\PermissionProvider;
@@ -78,7 +73,7 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
      * @config
      * @var int
      */
-    private static $page_length = 15;
+    private static $page_length = 50;
 
     /**
      * @config
@@ -1190,8 +1185,8 @@ class AssetAdmin extends LeftAndMain implements PermissionProvider
 
         // Categories
         $categories = File::config()->app_categories;
-        if (!empty($filters['AppCategory']) && !empty($categories[$filters['AppCategory']])) {
-            $extensions = $categories[$filters['AppCategory']];
+        if (!empty($params['AppCategory']) && !empty($categories[$params['AppCategory']])) {
+            $extensions = $categories[$params['AppCategory']];
             $list = $list->filter('Name:EndsWith', $extensions);
         }
 

@@ -11,6 +11,7 @@ import Gallery from 'containers/Gallery/Gallery';
 import Breadcrumb from 'components/Breadcrumb/Breadcrumb';
 import Toolbar from 'components/Toolbar/Toolbar';
 import Search from 'components/Search/Search';
+import { hasSearch } from 'lib/search';
 
 class AssetAdmin extends SilverStripeComponent {
 
@@ -48,8 +49,8 @@ class AssetAdmin extends SilverStripeComponent {
 
   componentWillReceiveProps(props) {
     const viewChanged = this.compare(this.props.folder, props.folder);
-    if (viewChanged) {
-      this.setBreadcrumbs(props.folder);
+    if (viewChanged || hasSearch(props.query) !== hasSearch(this.props.query)) {
+      this.setBreadcrumbs(props);
     }
   }
 
@@ -162,7 +163,9 @@ class AssetAdmin extends SilverStripeComponent {
    *
    * @param {Object} folder
      */
-  setBreadcrumbs(folder) {
+  setBreadcrumbs(props) {
+    const folder = props.folder;
+    const query = props.query;
     // Set root breadcrumb
     const breadcrumbs = [{
       text: i18n._t('AssetAdmin.FILES', 'Files'),
@@ -191,10 +194,22 @@ class AssetAdmin extends SilverStripeComponent {
       // Add current folder
       breadcrumbs.push({
         text: folder.title,
+        href: this.props.getUrl && this.props.getUrl(folder.id),
+        onClick: (event) => {
+          event.preventDefault();
+          this.handleBrowse(folder.id);
+        },
         icon: {
           className: 'icon font-icon-edit-list',
           action: this.handleFolderIcon,
         },
+      });
+    }
+    // Search leaf if there was a search entered
+    if (hasSearch(query)) {
+      breadcrumbs.push({
+        text: i18n._t('LeftAndMain.SEARCHRESULTS', 'Search results'),
+        noCrumb: true,
       });
     }
 
@@ -400,7 +415,7 @@ class AssetAdmin extends SilverStripeComponent {
       <div className="fill-height">
         <Toolbar showBackButton={showBackButton} handleBackButtonClick={this.handleBackButtonClick}>
           {this.props.toolbarChildren}
-          <Search handleDoSearch={this.handleDoSearch} id="AssetSearchForm"
+          <Search onSearch={this.handleDoSearch} id="AssetSearchForm"
             searchFormSchemaUrl={searchFormSchemaUrl} folderId={this.props.folderId}
             query={query}
           />

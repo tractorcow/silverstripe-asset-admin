@@ -12,6 +12,7 @@ import BulkActions from 'components/BulkActions/BulkActions';
 import ThumbnailView from 'containers/ThumbnailView/ThumbnailView';
 import TableView from 'containers/TableView/TableView';
 import CONSTANTS from 'constants/index';
+import FormAlert from 'components/FormAlert/FormAlert';
 import * as galleryActions from 'state/gallery/GalleryActions';
 import * as queuedFilesActions from 'state/queuedFiles/QueuedFilesActions';
 
@@ -66,6 +67,7 @@ class Gallery extends Component {
     this.handleCreateFolder = this.handleCreateFolder.bind(this);
     this.handleViewChange = this.handleViewChange.bind(this);
     this.renderNoItemsNotice = this.renderNoItemsNotice.bind(this);
+    this.handleClearSearch = this.handleClearSearch.bind(this);
   }
 
   componentDidMount() {
@@ -117,6 +119,74 @@ class Gallery extends Component {
    */
   getSortElement() {
     return $(ReactDOM.findDOMNode(this)).find('.gallery__sort .dropdown');
+  }
+
+  /**
+   * Compose the search critia into a human readable message
+   *
+   * @param {object} search
+   * @returns {string}
+   */
+  getSearchMessage(search) {
+    const messages = [];
+    if (search.Name) {
+      messages.push(i18n._t(
+        'LeftAndMain.SEARCHRESULTSMESSAGEKEYWORDS',
+        'with keywords \'{Name}\''
+      ));
+    }
+
+    if (search.CreatedFrom && search.CreatedTo) {
+      messages.push(i18n._t(
+        'LeftAndMain.SEARCHRESULTSMESSAGEEDITEDBETWEEN',
+        'created between \'{CreatedFrom}\' and \'{CreatedTo}\''
+      ));
+    } else if (search.CreatedFrom) {
+      messages.push(i18n._t(
+        'LeftAndMain.SEARCHRESULTSMESSAGEEDITEDFROM',
+        'created after \'{CreatedFrom}\''
+      ));
+    } else if (search.CreatedTo) {
+      messages.push(i18n._t(
+        'LeftAndMain.SEARCHRESULTSMESSAGEEDITEDTO',
+        'created before \'{CreatedTo}\''
+      ));
+    }
+
+    if (search.AppCategory) {
+      messages.push(i18n._t(
+        'LeftAndMain.SEARCHRESULTSMESSAGECATEGORY',
+        'categorised as \'{AppCategory}\''
+      ));
+    }
+
+    if (!search.AllFolders) {
+      messages.push(i18n._t(
+        'LeftAndMain.SEARCHRESULTSMESSAGELIMIT',
+        'limited to the folder \'{Folder}\''
+      ));
+    }
+
+    const parts = [
+      messages.slice(0, -1).join(`${i18n._t('LeftAndMain.JOIN', ',')} `),
+      messages.slice(-1),
+    ].filter((part) => part).join(` ${i18n._t('LeftAndMain.JOINLAST', 'and')} `);
+
+    if (parts === '') {
+      return '';
+    }
+
+    const searchResults = {
+      parts: i18n.inject(parts, Object.assign(
+        { Folder: this.props.folder.title },
+        search
+      )),
+    };
+
+    return i18n.inject(
+      i18n._t('LeftAndMain.SEARCHRESULTSMESSAGE', 'Search results {parts}'),
+      searchResults
+    );
   }
 
   /**
@@ -319,6 +389,10 @@ class Gallery extends Component {
     return this.props.fileId === id;
   }
 
+  handleClearSearch(event) {
+    this.handleOpenFolder(event, this.props.folder);
+  }
+
   /**
    * Handles a user drilling down into a folder.
    *
@@ -458,6 +532,38 @@ class Gallery extends Component {
         </div>
       </div>
     );
+  }
+
+  /**
+   * Render the form search notification
+   *
+   * @return {XML}
+   */
+  renderSearchAlert() {
+    const search = this.props.search;
+    if (!search || Object.keys(search).length === 0) {
+      return null;
+    }
+
+    const message = this.getSearchMessage(search);
+
+    if (message === '') {
+      return null;
+    }
+
+    const body = (
+      <div>
+        <button
+          onClick={this.handleClearSearch}
+          className="btn btn-info font-icon-cancel form-alert__btn--right"
+        >
+          {i18n._t('LeftAndMain.SEARCHCLEARRESULTS', 'Clear results')}
+        </button>
+        {message}
+      </div>
+    );
+
+    return <FormAlert value={{ react: body }} type="warning" />;
   }
 
   /**
@@ -690,7 +796,7 @@ class Gallery extends Component {
 
           <div className={galleryClasses.join(' ')}>
             {this.renderToolbar()}
-
+            {this.renderSearchAlert()}
             {this.renderGalleryView()}
           </div>
         </AssetDropzone>
@@ -748,6 +854,7 @@ Gallery.propTypes = Object.assign({}, sharedPropTypes, {
   folderId: PropTypes.number.isRequired,
   folder: PropTypes.shape({
     id: PropTypes.number,
+    title: PropTypes.string,
     parentID: PropTypes.number,
     canView: PropTypes.bool,
     canEdit: PropTypes.bool,

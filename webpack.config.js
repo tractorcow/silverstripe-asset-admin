@@ -35,6 +35,7 @@ module.exports = {
     filename: 'js/[name].js',
   },
   externals: {
+    'redux-form': 'ReduxForm',
     'containers/InsertMediaModal/InsertMediaModal': 'InsertMediaModal',
     'components/Breadcrumb/Breadcrumb': 'Breadcrumb',
     'state/schema/SchemaActions': 'SchemaActions',
@@ -45,6 +46,7 @@ module.exports = {
     'components/FormBuilderModal/FormBuilderModal': 'FormBuilderModal',
     'components/FormBuilder/FormBuilder': 'FormBuilder',
     'components/Toolbar/Toolbar': 'Toolbar',
+    'components/FormAlert/FormAlert': 'FormAlert',
     'containers/FormBuilderLoader/FormBuilderLoader': 'FormBuilderLoader',
     'state/breadcrumbs/BreadcrumbsActions': 'BreadcrumbsActions',
     'deep-freeze-strict': 'DeepFreezeStrict',
